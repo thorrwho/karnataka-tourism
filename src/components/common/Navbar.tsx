@@ -12,14 +12,15 @@ import {
   Heart, 
   User, 
   Menu, 
-  X 
+  X,
+  LogOut 
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { user, isAuthenticated, openAuthModal } = useAuth();
+  const { user, isAuthenticated, openAuthModal, logout } = useAuth();
 
   const navLinks = [
     { label: 'Home', path: '/', icon: Compass },
@@ -107,19 +108,52 @@ export const Navbar: React.FC = () => {
 
             {/* User profile / Login */}
             {isAuthenticated ? (
-              <Link
-                to="/profile"
-                className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full bg-white border border-forest-800/15 hover:border-forest-800/30 transition-all shadow-sm"
-              >
-                <img
-                  src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
-                  alt={user?.name || 'User'}
-                  className="w-7 h-7 rounded-full object-cover ring-1 ring-gold-400"
-                />
-                <span className="text-xs font-semibold text-charcoal-800 max-w-[90px] truncate">
-                  {user?.name.split(' ')[0]}
-                </span>
-              </Link>
+              <div className="relative group">
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full bg-white border border-forest-800/15 hover:border-forest-800/30 transition-all shadow-sm"
+                >
+                  <img
+                    src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
+                    alt={user?.name || 'User'}
+                    className="w-7 h-7 rounded-full object-cover ring-1 ring-gold-400"
+                  />
+                  <span className="text-xs font-semibold text-charcoal-800 max-w-[90px] truncate">
+                    {user?.name.split(' ')[0]}
+                  </span>
+                </Link>
+
+                {/* Dropdown Menu */}
+                <div className="absolute right-0 top-full pt-2 hidden group-hover:block z-50">
+                  <div className="w-52 bg-white rounded-2xl shadow-elevated border border-forest-800/15 p-2 space-y-1">
+                    <div className="px-3 py-2 border-b border-charcoal-100">
+                      <div className="font-bold text-xs text-charcoal-900 truncate">{user?.name}</div>
+                      <div className="text-[10px] text-charcoal-500 truncate">{user?.email}</div>
+                    </div>
+                    <Link
+                      to="/profile"
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-charcoal-700 hover:bg-forest-50 hover:text-forest-800 transition-colors"
+                    >
+                      <User className="w-3.5 h-3.5 text-forest-700" />
+                      <span>My Profile & Trips</span>
+                    </Link>
+                    <Link
+                      to="/profile?tab=favorites"
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-charcoal-700 hover:bg-forest-50 hover:text-forest-800 transition-colors"
+                    >
+                      <Heart className="w-3.5 h-3.5 text-red-500" />
+                      <span>Favorites ({favoritesCount})</span>
+                    </Link>
+                    <button
+                      onClick={logout}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors text-left"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             ) : (
               <button
                 onClick={openAuthModal}
@@ -175,23 +209,35 @@ export const Navbar: React.FC = () => {
             );
           })}
 
-          <div className="pt-4 border-t border-forest-800/10 flex items-center justify-between">
+          <div className="pt-4 border-t border-forest-800/10">
             {isAuthenticated ? (
-              <Link
-                to="/profile"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3"
-              >
-                <img
-                  src={user?.avatar}
-                  alt={user?.name}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-forest-800"
-                />
-                <div>
-                  <div className="text-sm font-semibold text-charcoal-900">{user?.name}</div>
-                  <div className="text-xs text-charcoal-500">View profile & saved trips</div>
-                </div>
-              </Link>
+              <div className="space-y-2">
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 p-2 rounded-xl hover:bg-forest-50"
+                >
+                  <img
+                    src={user?.avatar}
+                    alt={user?.name}
+                    className="w-9 h-9 rounded-full object-cover ring-2 ring-forest-800"
+                  />
+                  <div>
+                    <div className="text-sm font-semibold text-charcoal-900">{user?.name}</div>
+                    <div className="text-xs text-charcoal-500">{user?.email}</div>
+                  </div>
+                </Link>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    logout();
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-red-50 text-red-600 text-xs font-bold border border-red-200 flex items-center justify-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
             ) : (
               <button
                 onClick={() => {

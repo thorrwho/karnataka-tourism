@@ -51,23 +51,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = () => {
-    // Reset to generic guest
-    const guest: UserProfile = {
-      id: 'guest',
-      name: 'Traveller Guest',
-      email: 'guest@karnataka-tourism.org',
-      joinedDate: 'Just arrived',
-      savedItineraries: [],
-      favoriteDestinationIds: [],
-      tripHistory: []
-    };
-    storageService.saveUser(guest);
-    setUser(guest);
+    storageService.clearUser();
+    setUser(null);
     showToast('Signed out successfully.', 'info');
   };
 
   const toggleFavorite = (destinationId: string) => {
-    if (!user) return;
+    if (!user) {
+      openAuthModal();
+      showToast('Please sign in to save your favorite destinations.', 'info');
+      return;
+    }
     const isNowFav = storageService.toggleFavorite(destinationId);
     setUser(storageService.getUser());
     if (isNowFav) {
@@ -82,6 +76,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const saveItinerary = (itinerary: GeneratedItinerary) => {
+    if (!user) {
+      openAuthModal();
+      showToast('Please sign in to save itineraries to your profile.', 'info');
+      return;
+    }
     storageService.saveItinerary(itinerary);
     setUser(storageService.getUser());
     showToast('Itinerary saved to your profile!', 'success');
@@ -97,7 +96,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !!user && user.id !== 'guest',
+        isAuthenticated: !!user,
         isAuthModalOpen,
         openAuthModal,
         closeAuthModal,

@@ -20,26 +20,46 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 export const ProfilePage: React.FC = () => {
-  const { user, logout, deleteItinerary } = useAuth();
+  const { user, isAuthenticated, logout, openAuthModal, deleteItinerary } = useAuth();
   const [activeTab, setActiveTab] = useState<'itineraries' | 'favorites' | 'history'>('itineraries');
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
   const [viewingItinerary, setViewingItinerary] = useState<GeneratedItinerary | null>(null);
   const navigate = useNavigate();
 
-  if (!user) {
+  if (!user || !isAuthenticated) {
     return (
       <div className="min-h-screen bg-cream-100 py-20 px-4 text-center">
-        <h2 className="font-serif font-bold text-2xl text-forest-900">Please Sign In</h2>
-        <p className="text-xs text-charcoal-500 mt-2">Sign in to view your saved itineraries and favorites.</p>
-        <button
-          onClick={() => navigate('/')}
-          className="mt-4 px-6 py-2.5 rounded-xl bg-forest-800 text-cream-50 text-xs font-bold"
-        >
-          Return to Home
-        </button>
+        <div className="max-w-md mx-auto bg-white rounded-3xl p-8 border border-forest-800/15 shadow-card space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-forest-800 text-gold-400 mx-auto flex items-center justify-center shadow-soft">
+            <User className="w-7 h-7" />
+          </div>
+          <h2 className="font-serif font-black text-2xl text-forest-900">Signed Out</h2>
+          <p className="text-xs text-charcoal-600 leading-relaxed">
+            You are currently signed out. Sign in to view your saved itineraries and bookmarked destinations.
+          </p>
+          <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={openAuthModal}
+              className="px-6 py-2.5 rounded-xl bg-forest-800 text-cream-50 font-bold text-xs shadow-soft hover:bg-forest-700 transition-colors"
+            >
+              Sign In / Demo Login
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="px-6 py-2.5 rounded-xl bg-cream-100 border border-charcoal-200 text-charcoal-700 font-bold text-xs hover:bg-cream-200 transition-colors"
+            >
+              Return to Home
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
+
+  const handleSignOut = () => {
+    logout();
+    navigate('/');
+  };
 
   // Look up favourite destination objects
   const favoriteDestinations = DESTINATIONS.filter(d => 
@@ -79,7 +99,7 @@ export const ProfilePage: React.FC = () => {
               <span>Create New Trip</span>
             </button>
             <button
-              onClick={logout}
+              onClick={handleSignOut}
               className="px-3 py-2 rounded-xl border border-charcoal-200 hover:bg-red-50 hover:text-red-600 text-charcoal-600 font-bold text-xs flex items-center gap-1.5 transition-colors"
               title="Sign Out"
             >

@@ -75,8 +75,12 @@ const SEED_REVIEWS: ReviewItem[] = [
 
 export const storageService = {
   // User Profile
-  getUser(): UserProfile {
+  getUser(): UserProfile | null {
     try {
+      const isLoggedOut = localStorage.getItem('karnataka_tourism_logged_out') === 'true';
+      if (isLoggedOut) {
+        return null;
+      }
       const data = localStorage.getItem(USER_KEY);
       if (!data) {
         localStorage.setItem(USER_KEY, JSON.stringify(DEFAULT_USER));
@@ -84,17 +88,29 @@ export const storageService = {
       }
       return JSON.parse(data);
     } catch {
-      return DEFAULT_USER;
+      return null;
     }
   },
 
-  saveUser(user: UserProfile): void {
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
+  saveUser(user: UserProfile | null): void {
+    if (!user) {
+      localStorage.removeItem(USER_KEY);
+      localStorage.setItem('karnataka_tourism_logged_out', 'true');
+    } else {
+      localStorage.removeItem('karnataka_tourism_logged_out');
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    }
+  },
+
+  clearUser(): void {
+    localStorage.removeItem(USER_KEY);
+    localStorage.setItem('karnataka_tourism_logged_out', 'true');
   },
 
   // Favourites
   toggleFavorite(destinationId: string): boolean {
     const user = this.getUser();
+    if (!user) return false;
     const index = user.favoriteDestinationIds.indexOf(destinationId);
     let isFav = false;
     if (index > -1) {
@@ -110,12 +126,13 @@ export const storageService = {
 
   isFavorite(destinationId: string): boolean {
     const user = this.getUser();
-    return user.favoriteDestinationIds.includes(destinationId);
+    return user ? user.favoriteDestinationIds.includes(destinationId) : false;
   },
 
   // Saved Itineraries
   saveItinerary(itinerary: GeneratedItinerary): void {
     const user = this.getUser();
+    if (!user) return;
     const existingIndex = user.savedItineraries.findIndex(i => i.id === itinerary.id);
     if (existingIndex >= 0) {
       user.savedItineraries[existingIndex] = itinerary;
@@ -127,6 +144,7 @@ export const storageService = {
 
   deleteItinerary(id: string): void {
     const user = this.getUser();
+    if (!user) return;
     user.savedItineraries = user.savedItineraries.filter(i => i.id !== id);
     this.saveUser(user);
   },

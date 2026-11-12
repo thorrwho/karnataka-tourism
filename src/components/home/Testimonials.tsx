@@ -6,7 +6,6 @@ export const Testimonials: React.FC = () => {
     {
       name: 'Ananya Deshmukh',
       location: 'Pune, Maharashtra',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
       role: 'Family Trip (4 Persons)',
       destination: 'Hampi & Badami Circuit',
       rating: 5,
@@ -15,7 +14,6 @@ export const Testimonials: React.FC = () => {
     {
       name: 'Marcus & Elena Weber',
       location: 'Munich, Germany',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
       role: 'International Couple Explorers',
       destination: 'Western Ghats & Coorg Homestay',
       rating: 5,
@@ -24,7 +22,6 @@ export const Testimonials: React.FC = () => {
     {
       name: 'Raghavan Sreenivasan',
       location: 'Chennai, Tamil Nadu',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
       role: 'Solo Heritage Enthusiast',
       destination: 'Belur, Halebidu & Shravanabelagola',
       rating: 5,
@@ -70,11 +67,9 @@ export const Testimonials: React.FC = () => {
               </div>
 
               <div className="pt-4 border-t border-forest-800/10 flex items-center gap-3">
-                <img
-                  src={t.avatar}
-                  alt={t.name}
-                  className="w-10 h-10 rounded-full object-cover ring-2 ring-gold-400"
-                />
+                <div className="w-10 h-10 rounded-full bg-forest-800 text-gold-400 font-bold text-xs flex items-center justify-center ring-2 ring-gold-400 shrink-0">
+                  {t.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                </div>
                 <div>
                   <h4 className="font-bold text-xs text-forest-900">{t.name}</h4>
                   <div className="text-[11px] text-charcoal-500">{t.location}</div>

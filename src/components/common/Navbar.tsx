@@ -113,11 +113,17 @@ export const Navbar: React.FC = () => {
                   to="/profile"
                   className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full bg-white border border-forest-800/15 hover:border-forest-800/30 transition-all shadow-sm"
                 >
-                  <img
-                    src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
-                    alt={user?.name || 'User'}
-                    className="w-7 h-7 rounded-full object-cover ring-1 ring-gold-400"
-                  />
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-7 h-7 rounded-full object-cover ring-1 ring-gold-400"
+                    />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full bg-forest-800 text-gold-400 font-bold text-xs flex items-center justify-center ring-1 ring-gold-400/50">
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                  )}
                   <span className="text-xs font-semibold text-charcoal-800 max-w-[90px] truncate">
                     {user?.name.split(' ')[0]}
                   </span>
@@ -217,11 +223,17 @@ export const Navbar: React.FC = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-3 p-2 rounded-xl hover:bg-forest-50"
                 >
-                  <img
-                    src={user?.avatar}
-                    alt={user?.name}
-                    className="w-9 h-9 rounded-full object-cover ring-2 ring-forest-800"
-                  />
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-9 h-9 rounded-full object-cover ring-2 ring-forest-800"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-forest-800 text-gold-400 font-bold text-sm flex items-center justify-center ring-2 ring-forest-800">
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                  )}
                   <div>
                     <div className="text-sm font-semibold text-charcoal-900">{user?.name}</div>
                     <div className="text-xs text-charcoal-500">{user?.email}</div>

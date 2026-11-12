@@ -12,6 +12,7 @@ interface AuthContextType {
   closeAuthModal: () => void;
   login: (name: string, email: string) => void;
   logout: () => void;
+  updateAvatar: (avatarUrl?: string) => void;
   toggleFavorite: (destinationId: string) => void;
   isFavorite: (destinationId: string) => boolean;
   saveItinerary: (itinerary: GeneratedItinerary) => void;
@@ -38,7 +39,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       id: `user-${Date.now()}`,
       name,
       email,
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
       joinedDate: 'Joined Today',
       savedItineraries: user ? user.savedItineraries : [],
       favoriteDestinationIds: user ? user.favoriteDestinationIds : ['hampi', 'coorg'],
@@ -48,6 +48,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(updated);
     closeAuthModal();
     showToast(`Welcome back, ${name}! Logged in successfully.`, 'success');
+  };
+
+  const updateAvatar = (avatarUrl?: string) => {
+    if (!user) return;
+    const updated: UserProfile = {
+      ...user,
+      avatar: avatarUrl?.trim() || undefined
+    };
+    storageService.saveUser(updated);
+    setUser(updated);
+    showToast(avatarUrl ? 'Profile photo updated!' : 'Profile photo removed.', 'success');
   };
 
   const logout = () => {
@@ -102,6 +113,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         closeAuthModal,
         login,
         logout,
+        updateAvatar,
         toggleFavorite,
         isFavorite,
         saveItinerary,

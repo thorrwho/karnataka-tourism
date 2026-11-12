@@ -15,15 +15,20 @@ import {
   Eye, 
   LogOut, 
   Compass, 
-  Sparkles 
+  Sparkles,
+  Camera,
+  X,
+  Upload
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const ProfilePage: React.FC = () => {
-  const { user, isAuthenticated, logout, openAuthModal, deleteItinerary } = useAuth();
+  const { user, isAuthenticated, logout, openAuthModal, deleteItinerary, updateAvatar } = useAuth();
   const [activeTab, setActiveTab] = useState<'itineraries' | 'favorites' | 'history'>('itineraries');
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
   const [viewingItinerary, setViewingItinerary] = useState<GeneratedItinerary | null>(null);
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [newAvatarUrl, setNewAvatarUrl] = useState('');
   const navigate = useNavigate();
 
   if (!user || !isAuthenticated) {
@@ -73,11 +78,27 @@ export const ProfilePage: React.FC = () => {
         {/* Profile Card Header */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-forest-800/15 shadow-soft flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
-            <img
-              src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}
-              alt={user.name}
-              className="w-20 h-20 rounded-full object-cover ring-4 ring-gold-400 shadow-md"
-            />
+            <div className="relative group">
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="w-20 h-20 rounded-full object-cover ring-4 ring-gold-400 shadow-md"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-forest-800 text-gold-400 font-serif font-black text-2xl flex items-center justify-center ring-4 ring-gold-400 shadow-md">
+                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+              )}
+              <button
+                onClick={() => setIsAvatarModalOpen(true)}
+                className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-white text-forest-800 border border-charcoal-200 shadow-sm hover:bg-forest-50 transition-colors"
+                title={user.avatar ? "Change profile photo" : "Add profile photo"}
+              >
+                <Camera className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
             <div className="space-y-1">
               <div className="flex items-center justify-center sm:justify-start gap-2">
                 <h1 className="font-serif font-black text-2xl text-forest-900">{user.name}</h1>
@@ -86,7 +107,23 @@ export const ProfilePage: React.FC = () => {
                 </span>
               </div>
               <p className="text-xs text-charcoal-500">{user.email}</p>
-              <div className="text-[11px] text-forest-800 font-semibold">{user.joinedDate}</div>
+              <div className="flex items-center justify-center sm:justify-start gap-3 pt-0.5">
+                <span className="text-[11px] text-forest-800 font-semibold">{user.joinedDate}</span>
+                <button
+                  onClick={() => setIsAvatarModalOpen(true)}
+                  className="text-[11px] text-forest-700 hover:text-gold-600 font-medium underline"
+                >
+                  {user.avatar ? 'Change photo' : '+ Add photo'}
+                </button>
+                {user.avatar && (
+                  <button
+                    onClick={() => updateAvatar(undefined)}
+                    className="text-[11px] text-red-600 hover:text-red-700 font-medium underline"
+                  >
+                    Remove photo
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -334,6 +371,69 @@ export const ProfilePage: React.FC = () => {
             >
               Close Itinerary Preview
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Avatar Photo Modal */}
+      {isAvatarModalOpen && (
+        <div className="fixed inset-0 z-50 bg-charcoal-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative bg-white w-full max-w-sm rounded-3xl p-6 shadow-elevated border border-forest-800/15 space-y-4">
+            <div className="flex items-center justify-between border-b pb-3">
+              <h4 className="font-serif font-bold text-base text-forest-900">Custom Profile Photo</h4>
+              <button
+                onClick={() => setIsAvatarModalOpen(false)}
+                className="p-1 rounded-full text-charcoal-400 hover:text-charcoal-800"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-charcoal-500">
+              Paste an image URL if you wish to display a photo, or leave it blank to display your clean initial badge.
+            </p>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                updateAvatar(newAvatarUrl);
+                setIsAvatarModalOpen(false);
+                setNewAvatarUrl('');
+              }}
+              className="space-y-3"
+            >
+              <div>
+                <label className="block text-xs font-bold text-charcoal-700 mb-1">Photo Image Link</label>
+                <input
+                  type="url"
+                  value={newAvatarUrl}
+                  onChange={(e) => setNewAvatarUrl(e.target.value)}
+                  placeholder="https://example.com/my-photo.jpg"
+                  className="w-full px-3 py-2 rounded-xl border border-charcoal-200 text-xs bg-cream-50 text-charcoal-900 focus:outline-none focus:border-forest-800"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="submit"
+                  className="flex-1 py-2 rounded-xl bg-forest-800 text-cream-50 font-bold text-xs hover:bg-forest-700 transition-colors"
+                >
+                  Save Photo
+                </button>
+                {user.avatar && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateAvatar(undefined);
+                      setIsAvatarModalOpen(false);
+                    }}
+                    className="px-3 py-2 rounded-xl border border-red-200 text-red-600 font-bold text-xs hover:bg-red-50 transition-colors"
+                  >
+                    Remove Photo
+                  </button>
+                )}
+              </div>
+            </form>
           </div>
         </div>
       )}
